@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { setSearchTerm, setCurrentPage } from '../redux/productSlice';
 import ProductItem from './ProductItem';
-import { Button, Box, TextField, Typography } from '@mui/material';
+import { Button, Box, TextField, Typography, Grid, Paper } from '@mui/material';
 
 const ProductList = () => {
   const dispatch = useDispatch();
@@ -21,16 +21,30 @@ const ProductList = () => {
   };
 
   return (
-    <div className="container">
-      <Typography variant="h4" gutterBottom>
+    <Box sx={{ padding: 3, maxWidth: 800, margin: 'auto' }}>
+      <Typography variant="h4" component="h1" textAlign="center" gutterBottom>
         Danh Sách Bán Hàng
       </Typography>
 
-      <SearchBar searchTerm={searchTerm} onSearchChange={handleSearchChange} />
-      <AddProductButton />
+      <Paper elevation={3} sx={{ padding: 2, marginBottom: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <TextField
+            label="Tìm kiếm hàng hóa..."
+            variant="outlined"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            fullWidth
+          />
+          <Link to="/add">
+            <Button variant="contained" color="primary">
+              Thêm hàng hóa
+            </Button>
+          </Link>
+        </Box>
+      </Paper>
 
       {currentItems.length === 0 ? (
-        <Typography variant="body1" color="error">
+        <Typography variant="body1" color="error" textAlign="center">
           Không tìm thấy hàng hóa nào!
         </Typography>
       ) : (
@@ -42,10 +56,11 @@ const ProductList = () => {
         totalPages={totalPages}
         onPageChange={handlePageChange}
       />
-    </div>
+    </Box>
   );
 };
 
+// Filtering and Pagination
 const getFilteredItems = (items, searchTerm) => {
   return items.filter(item =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -61,41 +76,23 @@ const getPaginatedItems = (filteredItems, currentPage, itemsPerPage) => {
   return { currentItems, totalPages };
 };
 
-const SearchBar = ({ searchTerm, onSearchChange }) => (
-  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-    <TextField
-      label="Tìm kiếm hàng hóa..."
-      variant="outlined"
-      value={searchTerm}
-      onChange={onSearchChange}
-      fullWidth
-    />
-  </Box>
-);
-
-const AddProductButton = () => (
-  <Link to="/add">
-    <Button variant="contained" sx={{ mb: 2 }}>
-      Thêm hàng hóa
-    </Button>
-  </Link>
-);
-
+// Product Items List and Pagination Controls
 const ProductListItems = ({ items }) => (
-  <ul>
+  <Grid spacing={2}>
     {items.map(item => (
-      <ProductItem key={item.id} item={item} />
+      <Grid item xs={12} sm={6} key={item.id}>
+        <ProductItem item={item} />
+      </Grid>
     ))}
-  </ul>
+  </Grid>
 );
 
 const PaginationControls = ({ currentPage, totalPages, onPageChange }) => (
-  <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+  <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, gap: 2 }}>
     <Button
       onClick={() => onPageChange(-1)}
       disabled={currentPage === 1}
       variant="outlined"
-      sx={{ mr: 2 }}
     >
       Trang trước
     </Button>
@@ -106,7 +103,6 @@ const PaginationControls = ({ currentPage, totalPages, onPageChange }) => (
       onClick={() => onPageChange(1)}
       disabled={currentPage === totalPages}
       variant="outlined"
-      sx={{ ml: 2 }}
     >
       Trang sau
     </Button>
